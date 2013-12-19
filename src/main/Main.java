@@ -1,16 +1,16 @@
 package main;
 
-import javax.swing.text.html.parser.Parser;
-import javax.xml.bind.ParseConversionEvent;
+import java.io.IOException;
 
+import parser.Parser;
 import lexer.Lexer;
 
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		Lexer lex = new Lexer();
-		Parse parse = new Parser(lex);
+		Parser parse = new Parser(lex);
 		parse.program();
 		System.out.println();
 	}
