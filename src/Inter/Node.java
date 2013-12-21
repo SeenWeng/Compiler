@@ -9,14 +9,18 @@ import lexer.Lexer;
  * 
  */
 public class Node {
-	public int lexline = 0; // 保存了本节点对应的构造在源程序中的行号
+	int lexline = 0; // 保存了本节点对应的构造在源程序中的行号
 
 	public Node() {
 		lexline = Lexer.line;
 	}
 
 	void error(String s) {
-		throw new Error("near line" + lexline + ": " + s);
+		try {
+			throw new Error("near line " + lexline + ": " + s);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	static int labels = 0;

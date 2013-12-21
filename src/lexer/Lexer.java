@@ -6,6 +6,7 @@ import java.util.Hashtable;
 import symbols.Type;
 
 /**
+ * 保留了选定的关键字
  * 
  * @author seanweng
  * 
@@ -13,7 +14,7 @@ import symbols.Type;
 public class Lexer {
 	public static int line = 1;
 	char peek = ' ';
-	Hashtable words = new Hashtable();
+	Hashtable<String, Word> words = new Hashtable<String, Word>();
 
 	void reserve(Word word) {
 		words.put(word.lexeme, word);
@@ -46,6 +47,9 @@ public class Lexer {
 		return true;
 	}
 
+	/**
+	 * 识别数字，标识符和保留字
+	 */
 	public Token scan() throws IOException {
 		for (;; readch()) {
 			if (peek == ' ' || peek == '\t') {
@@ -93,8 +97,6 @@ public class Lexer {
 			} else {
 				return new Token('>');
 			}
-		default:
-			break;
 		}
 		if (Character.isDigit(peek)) {
 			int v = 0;
@@ -119,7 +121,7 @@ public class Lexer {
 		if (Character.isLetter(peek)) {
 			StringBuffer b = new StringBuffer();
 			do {
-				b.append(b);
+				b.append(peek);
 				readch();
 			} while (Character.isLetterOrDigit(peek));
 			String s = b.toString();

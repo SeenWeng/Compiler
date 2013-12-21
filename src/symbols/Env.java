@@ -14,11 +14,11 @@ import lexer.Token;
  * 
  */
 public class Env {
-	private Hashtable table;
+	private Hashtable<Token, Id> table;
 	protected Env prev;
 
 	public Env(Env n) {
-		table = new Hashtable();
+		table = new Hashtable<Token, Id>();
 		prev = n;
 	}
 

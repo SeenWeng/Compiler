@@ -112,7 +112,7 @@ public class Parser {
 			match(Tag.IF);
 			match('(');
 			x = bool();
-			match('(');
+			match(')');
 			s1 = stmt();
 			if (look.tag != Tag.ELSE) {
 				return new If(x, s1);

@@ -22,7 +22,7 @@ public class Arith extends OP {
 		// 检查两个运算分量是否可以被类型强制为一个常见的数字类型
 		type = Type.max(expr1.type, expr2.type);
 		if (type == null) {
-			error("type error");
+			// error("type error");
 		}
 	}
 
