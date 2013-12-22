@@ -1,10 +1,9 @@
 package parser;
 
-import java.io.IOException;
-
-import Inter.*;
-import symbols.*;
+import java.io.*;
 import lexer.*;
+import symbols.*;
+import inter.*;
 
 /**
  * 语法分析器,读入一个由词法单元组成的流
@@ -13,10 +12,11 @@ import lexer.*;
  * 
  */
 public class Parser {
+
 	private Lexer lex; // 这个语法分析器的词法分析器
-	private Token look;// 向前看词法单元
-	Env top = null;// 向前或顶层的符号集
-	int used = 0;// 用于变量声明的存储位置
+	private Token look; // 向前看词法单元
+	Env top = null; // 向前或顶层的符号集
+	int used = 0; // 用于变量声明的存储位置
 
 	public Parser(Lexer l) throws IOException {
 		lex = l;
@@ -28,27 +28,26 @@ public class Parser {
 	}
 
 	void error(String s) {
-		throw new Error("near line" + lex.line + ": " + s);
+		throw new Error("near line " + lex.line + ": " + s);
 	}
 
 	void match(int t) throws IOException {
-		if (look.tag == t) {
+		if (look.tag == t)
 			move();
-		} else {
+		else
 			error("syntax error");
-		}
 	}
 
-	public void program() throws IOException {
+	public void program() throws IOException { // program -> block
 		Stmt s = block();
-		int begin = s.newlable();
-		int after = s.newlable();
-		s.emitlable(begin);
+		int begin = s.newlabel();
+		int after = s.newlabel();
+		s.emitlabel(begin);
 		s.gen(begin, after);
-		s.emitlable(after);
+		s.emitlabel(after);
 	}
 
-	Stmt block() throws IOException {
+	Stmt block() throws IOException { // block -> { decls stmts }
 		match('{');
 		Env savedEnv = top;
 		top = new Env(top);
@@ -60,7 +59,8 @@ public class Parser {
 	}
 
 	void decls() throws IOException {
-		while (look.tag == Tag.BASIC) {
+
+		while (look.tag == Tag.BASIC) { // D -> type ID ;
 			Type p = type();
 			Token tok = look;
 			match(Tag.ID);
@@ -72,13 +72,13 @@ public class Parser {
 	}
 
 	Type type() throws IOException {
-		Type p = (Type) look;
+
+		Type p = (Type) look; // expect look.tag == Tag.BASIC
 		match(Tag.BASIC);
-		if (look.tag != '[') {
-			return p;
-		} else {
-			return dims(p);
-		}
+		if (look.tag != '[')
+			return p; // T -> basic
+		else
+			return dims(p); // return array type
 	}
 
 	Type dims(Type p) throws IOException {
@@ -86,52 +86,53 @@ public class Parser {
 		Token tok = look;
 		match(Tag.NUM);
 		match(']');
-		if (look.tag == '[') {
+		if (look.tag == '[')
 			p = dims(p);
-		}
 		return new Array(((Num) tok).value, p);
 	}
 
 	Stmt stmts() throws IOException {
-		if (look.tag == '}') {
+		if (look.tag == '}')
 			return Stmt.Null;
-		} else {
+		else
 			return new Seq(stmt(), stmts());
-		}
 	}
 
 	Stmt stmt() throws IOException {
 		Expr x;
 		Stmt s, s1, s2;
 		Stmt savedStmt; // 用于为break语句保存外层的循环语句
+
 		switch (look.tag) {
+
 		case ';':
 			move();
 			return Stmt.Null;
+
 		case Tag.IF:
 			match(Tag.IF);
 			match('(');
 			x = bool();
 			match(')');
 			s1 = stmt();
-			if (look.tag != Tag.ELSE) {
+			if (look.tag != Tag.ELSE)
 				return new If(x, s1);
-			}
 			match(Tag.ELSE);
 			s2 = stmt();
 			return new Else(x, s1, s2);
+
 		case Tag.WHILE:
-			While whilenods = new While();
+			While whilenode = new While();
 			savedStmt = Stmt.Enclosing;
-			Stmt.Enclosing = whilenods;
+			Stmt.Enclosing = whilenode;
 			match(Tag.WHILE);
 			match('(');
 			x = bool();
 			match(')');
 			s1 = stmt();
-			whilenods.init(x, s1);
-			Stmt.Enclosing = savedStmt; // 重置Stmt.Enclosing
-			return whilenods;
+			whilenode.init(x, s1);// 重置Stmt.Enclosing
+			return whilenode;
+
 		case Tag.DO:
 			Do donode = new Do();
 			savedStmt = Stmt.Enclosing;
@@ -144,14 +145,17 @@ public class Parser {
 			match(')');
 			match(';');
 			donode.init(s1, x);
-			Stmt.Enclosing = savedStmt;
+			Stmt.Enclosing = savedStmt; // reset Stmt.Enclosing
 			return donode;
+
 		case Tag.BREAK:
 			match(Tag.BREAK);
 			match(';');
 			return new Break();
+
 		case '{':
 			return block();
+
 		default:
 			return assign();
 		}
@@ -162,13 +166,13 @@ public class Parser {
 		Token t = look;
 		match(Tag.ID);
 		Id id = top.get(t);
-		if (id == null) {
-			error(t.toString() + " underclared");
-		}
-		if (look.tag == '=') {
+		if (id == null)
+			error(t.toString() + " undeclared");
+
+		if (look.tag == '=') { // S -> id = E ;
 			move();
 			stmt = new Set(id, bool());
-		} else {
+		} else { // S -> L = E ;
 			Access x = offset(id);
 			match('=');
 			stmt = new SetElem(x, bool());
@@ -202,7 +206,7 @@ public class Parser {
 		while (look.tag == Tag.EQ || look.tag == Tag.NE) {
 			Token tok = look;
 			move();
-			x = new Rel(tok, x, equality());
+			x = new Rel(tok, x, rel());
 		}
 		return x;
 	}
@@ -250,9 +254,8 @@ public class Parser {
 			Token tok = look;
 			move();
 			return new Not(tok, unary());
-		} else {
+		} else
 			return factor();
-		}
 	}
 
 	Expr factor() throws IOException {
@@ -275,42 +278,41 @@ public class Parser {
 			x = Constant.True;
 			move();
 			return x;
-		case Tag.FLASE:
+		case Tag.FALSE:
 			x = Constant.False;
 			move();
+			return x;
+		default:
+			error("syntax error");
 			return x;
 		case Tag.ID:
 			String s = look.toString();
 			Id id = top.get(look);
-			if (id == null) {
-				error(look.toString() + " underclared");
-			}
+			if (id == null)
+				error(look.toString() + " undeclared");
 			move();
-			if (look.tag != '[') {
+			if (look.tag != '[')
 				return id;
-			} else {
+			else
 				return offset(id);
-			}
-		default:
-			error("syntax error");
-			return x;
 		}
 	}
 
-	Access offset(Id a) throws IOException {
+	Access offset(Id a) throws IOException { // I -> [E] | [E] I
 		Expr i;
 		Expr w;
 		Expr t1, t2;
-		Expr loc;
+		Expr loc; // inherit id
+
 		Type type = a.type;
 		match('[');
 		i = bool();
-		match(']');
+		match(']'); // first index, I -> [ E ]
 		type = ((Array) type).of;
 		w = new Constant(type.width);
 		t1 = new Arith(new Token('*'), i, w);
 		loc = t1;
-		while (look.tag == '[') {
+		while (look.tag == '[') { // multi-dimensional I -> [ E ] I
 			match('[');
 			i = bool();
 			match(']');
@@ -320,6 +322,7 @@ public class Parser {
 			t2 = new Arith(new Token('+'), loc, t1);
 			loc = t2;
 		}
+
 		return new Access(a, loc, type);
 	}
 }

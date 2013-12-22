@@ -1,9 +1,8 @@
 package lexer;
 
-import java.io.IOException;
-import java.util.Hashtable;
-
-import symbols.Type;
+import java.io.*;
+import java.util.*;
+import symbols.*;
 
 /**
  * 保留了选定的关键字
@@ -14,20 +13,23 @@ import symbols.Type;
 public class Lexer {
 	public static int line = 1;
 	char peek = ' ';
-	Hashtable<String, Word> words = new Hashtable<String, Word>();
+	Hashtable words = new Hashtable();
 
-	void reserve(Word word) {
-		words.put(word.lexeme, word);
+	void reserve(Word w) {
+		words.put(w.lexeme, w);
 	}
 
 	public Lexer() {
+
 		reserve(new Word("if", Tag.IF));
 		reserve(new Word("else", Tag.ELSE));
 		reserve(new Word("while", Tag.WHILE));
 		reserve(new Word("do", Tag.DO));
 		reserve(new Word("break", Tag.BREAK));
+
 		reserve(Word.True);
 		reserve(Word.False);
+
 		reserve(Type.Int);
 		reserve(Type.Char);
 		reserve(Type.Bool);
@@ -40,9 +42,8 @@ public class Lexer {
 
 	boolean readch(char c) throws IOException {
 		readch();
-		if (peek != c) {
+		if (peek != c)
 			return false;
-		}
 		peek = ' ';
 		return true;
 	}
@@ -52,51 +53,44 @@ public class Lexer {
 	 */
 	public Token scan() throws IOException {
 		for (;; readch()) {
-			if (peek == ' ' || peek == '\t') {
+			if (peek == ' ' || peek == '\t')
 				continue;
-			} else if (peek == '\n') {
+			else if (peek == '\n')
 				line = line + 1;
-			} else {
+			else
 				break;
-			}
 		}
 		switch (peek) {
 		case '&':
-			if (readch('&')) {
+			if (readch('&'))
 				return Word.and;
-			} else {
+			else
 				return new Token('&');
-			}
 		case '|':
-			if (readch('|')) {
+			if (readch('|'))
 				return Word.or;
-			} else {
+			else
 				return new Token('|');
-			}
 		case '=':
-			if (readch('=')) {
+			if (readch('='))
 				return Word.eq;
-			} else {
+			else
 				return new Token('=');
-			}
 		case '!':
-			if (readch('=')) {
+			if (readch('='))
 				return Word.ne;
-			} else {
+			else
 				return new Token('!');
-			}
 		case '<':
-			if (readch('=')) {
+			if (readch('='))
 				return Word.le;
-			} else {
+			else
 				return new Token('<');
-			}
 		case '>':
-			if (readch('=')) {
+			if (readch('='))
 				return Word.ge;
-			} else {
+			else
 				return new Token('>');
-			}
 		}
 		if (Character.isDigit(peek)) {
 			int v = 0;
@@ -104,9 +98,8 @@ public class Lexer {
 				v = 10 * v + Character.digit(peek, 10);
 				readch();
 			} while (Character.isDigit(peek));
-			if (peek != '.') {
+			if (peek != '.')
 				return new Num(v);
-			}
 			float x = v;
 			float d = 10;
 			for (;;) {

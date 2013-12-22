@@ -4,13 +4,12 @@ public class Num extends Token {
 
 	public final int value;
 
-	public Num(int t) {
+	public Num(int v) {
 		super(Tag.NUM);
-		value = t;
+		value = v;
 	}
 
 	public String toString() {
 		return "" + value;
 	}
-
 }

@@ -1,11 +1,8 @@
 package symbols;
 
-import java.util.Hashtable;
-
-import org.omg.PortableServer.IdAssignmentPolicy;
-
-import Inter.Id;
-import lexer.Token;
+import java.util.*;
+import lexer.*;
+import inter.*;
 
 /**
  * Class Lexer 把字符串映射为字，Class Env 把字符串词法单元映射为Class ID的对象
@@ -14,11 +11,12 @@ import lexer.Token;
  * 
  */
 public class Env {
-	private Hashtable<Token, Id> table;
+
+	private Hashtable table;
 	protected Env prev;
 
 	public Env(Env n) {
-		table = new Hashtable<Token, Id>();
+		table = new Hashtable();
 		prev = n;
 	}
 

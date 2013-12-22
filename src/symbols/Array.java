@@ -1,6 +1,6 @@
 package symbols;
 
-import lexer.Tag;
+import lexer.*;
 
 /**
  * 数组是源语言中唯一的构造类型
@@ -9,7 +9,6 @@ import lexer.Tag;
  * 
  */
 public class Array extends Type {
-
 	public Type of; // 设置数组的元素类型
 	public int size = 1; // 元素个数
 
@@ -20,7 +19,6 @@ public class Array extends Type {
 	}
 
 	public String toString() {
-		return "[" + size + "]" + of.toString();
+		return "[" + size + "] " + of.toString();
 	}
-
 }
