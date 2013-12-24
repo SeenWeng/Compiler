@@ -1,5 +1,8 @@
 package inter;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import lexer.*;
 
 public class Node {
@@ -21,10 +24,31 @@ public class Node {
 	}
 
 	public void emitlabel(int i) {
-		System.out.print("L" + i + ":");
+
+		FileWriter fw;
+		try {
+			fw = new FileWriter("tests/quaternion.txt");
+			fw.write("L" + i + ":");
+			System.out.print("L" + i + ":");
+			fw.flush();
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void emit(String s) {
-		System.out.println("\t" + s);
+		FileWriter fw;
+		try {
+			fw = new FileWriter("tests/quaternion.txt");
+			fw.write("\t" + s);
+			fw.flush();
+			fw.close();
+			System.out.println("\t" + s);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

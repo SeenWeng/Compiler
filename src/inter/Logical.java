@@ -1,5 +1,7 @@
 package inter;
 
+import java.io.IOException;
+
 import lexer.*;
 import symbols.*;
 

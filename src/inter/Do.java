@@ -24,6 +24,6 @@ public class Do extends Stmt {
 		int label = newlabel(); // 用于expr的标号
 		stmt.gen(b, label);
 		emitlabel(label);
-		expr.jumping(b, 0);
+		expr.jumping(b, 0); 
 	}
 }

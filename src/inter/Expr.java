@@ -1,5 +1,7 @@
 package inter;
 
+import java.io.IOException;
+
 import lexer.*;
 import symbols.*;
 
@@ -32,11 +34,11 @@ public class Expr extends Node {
 		return this;
 	}
 
-	public void jumping(int t, int f) {
+	public void jumping(int t, int f){
 		emitjumps(toString(), t, f);
 	}
 
-	public void emitjumps(String test, int t, int f) {
+	public void emitjumps(String test, int t, int f){
 		if (t != 0 && f != 0) {
 			emit("if " + test + " goto L" + t);
 			emit("goto L" + f);

@@ -1,8 +1,10 @@
 package main;
 
 import java.io.*;
+
 import lexer.*;
 import parser.*;
+import quaternion.Quaternion;
 
 public class Main {
 
@@ -11,5 +13,8 @@ public class Main {
 		Parser parse = new Parser(lex);
 		parse.program();
 		System.out.write('\n');
+		Quaternion quaternion = new Quaternion();
+		quaternion.readCode();
+		quaternion.getQuaternion();
 	}
 }
